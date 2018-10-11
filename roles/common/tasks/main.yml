@@ -1,0 +1,75 @@
+---
+
+- name: install libselinux-python
+  yum:
+    name: libselinux-python
+
+- name: disable selinux
+  selinux:
+    state: disabled
+  changed_when: false
+
+- name: check language
+  shell: localectl status | grep LANG=en_US.UTF-8
+  register: localectl_status
+  changed_when: localectl_status.rc == 1
+  failed_when: localectl_status == 1
+
+- name: setup language
+  shell: localectl set-locale LANG=en_US.UTF-8
+  when: localectl_status.rc == 1
+
+- name: check timezone
+  shell: timedatectl status | grep Asia/Tokyo
+  register: timedatectl_status
+  changed_when: timedatectl_status.rc == 1
+  failed_when: timedatectl_status == 1
+
+- name: setup timezone
+  shell: timedatectl set-timezone Asia/Tokyo
+  when: timedatectl_status.rc == 1
+
+- name: setup umask
+  lineinfile:
+    path: /etc/profile
+    line: 'umask 0022'
+
+- name: install epel repository
+  yum:
+    name: epel-release
+
+- name: yum group-install
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - "@Base"
+    - "@Development tools"
+
+- name: install common service
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - git
+    - ntp
+    - net-tools
+    - wget
+    - vim
+
+- name: install epel common service
+  yum:
+    name: "{{ item }}"
+    enablerepo: epel
+  with_items:
+    - htop
+    - jq
+
+- name: epel repository disable
+  replace:
+    path: /etc/yum.repos.d/epel.repo
+    regexp: "enabled *= *1"
+    replace: "enabled=0"
+
+- name: systemctl daemon reload
+  systemd:
+    name: "*"
+    daemon_reload: yes

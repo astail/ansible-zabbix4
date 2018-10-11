@@ -1,0 +1,12 @@
+---
+
+- hosts: vagrant
+  become: true
+  roles:
+    - common
+    - sshd
+
+#- hosts: zabbix4_centos
+#  become: true
+#  roles:
+#    - zabbix4
