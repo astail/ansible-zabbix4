@@ -1,0 +1,28 @@
+---
+
+- name: yum install mariadb
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - mariadb
+    - mariadb-devel
+    - mariadb-server
+
+- name: install MySQL-python
+  yum:
+    name: MySQL-python
+
+- name: start mariadb service
+  systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: set mariadb root password
+  mysql_user:
+    name: root
+    password: "{{ db_root_user_password }}"
+    login_user: root
+    login_password: "{{ db_root_user_password }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    check_implicit_admin: yes

@@ -12,4 +12,5 @@
     - nginx
     - php_fpm
     - my_nginx_conf
+    - mariadb
 #    - zabbix4
