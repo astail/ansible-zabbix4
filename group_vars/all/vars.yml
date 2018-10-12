@@ -1,3 +1,4 @@
 ---
 
 tmp: /tmp
+zabbix_web_root: zabbix

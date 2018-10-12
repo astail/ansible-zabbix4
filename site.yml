@@ -6,7 +6,10 @@
     - common
     - sshd
 
-#- hosts: zabbix4_centos
-#  become: true
-#  roles:
+- hosts: zabbix4_centos
+  become: true
+  roles:
+    - nginx
+    - php_fpm
+    - my_nginx_conf
 #    - zabbix4
