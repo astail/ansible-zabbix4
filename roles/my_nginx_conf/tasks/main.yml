@@ -31,13 +31,6 @@
     state: absent
   notify: restart nginx service
 
-- name: mkdir {{ zabbix_web_root }}
-  file:
-    path: "/var/www/{{ zabbix_web_root }}"
-    owner: nginx
-    group: wheel
-    state: directory
-
 - name: start nginx service
   systemd:
     name: nginx

@@ -1,0 +1,99 @@
+---
+
+- name: yum install repo rpm
+  yum:
+    name: https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm
+
+- name: yum install server web agent
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - zabbix-server-mysql
+    - zabbix-web-mysql
+    - zabbix-agent
+
+- name: create zabbix databases
+  mysql_db:
+    name: zabbix
+    state: present
+    encoding: utf8
+    login_user: root
+    login_password: "{{ db_root_user_password }}"
+
+- name: create zabbix user
+  mysql_user:
+    name: zabbix
+    password: "{{ db_zabbix_user_password }}"
+    login_user: root
+    login_password: "{{ db_root_user_password }}"
+    check_implicit_admin: yes
+    priv: zabbix.*:ALL,GRANT
+
+- name: check zabbix insert sql
+  shell: "mysql -u zabbix -p{{ db_zabbix_user_password }} zabbix -e 'select count(*) from users'"
+  register: zabbix_status
+  changed_when: zabbix_status.rc == 1
+  failed_when: zabbix_status == 1
+
+- name: insert zabbix create.sql
+  shell: "zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p{{ db_zabbix_user_password }} zabbix"
+  when: zabbix_status.rc == 1
+
+- name: zabbix server conf db pass
+  lineinfile:
+    dest: /etc/zabbix/zabbix_server.conf
+    state: present
+    backrefs: yes
+    regexp: "DBPassword=$"
+    line: "DBPassword={{ db_zabbix_user_password }}"
+
+###- name: ln -dfs /usr/share/zabbix /var/www/html/zabbix
+###  file:
+###    src: /usr/share/zabbix
+###    dest: /var/www/html/zabbix
+###    state: link
+###    owner: nginx
+###    group: wheel
+###
+###- name: chown zabbix
+###  file:
+###    path: /usr/share/zabbix
+###    owner: nginx
+###    group: wheel
+###    state: directory
+###    recurse: yes
+
+- name: ln -s /usr/share/zabbix /var/www/html/zabbix
+  file:
+    src: /usr/share/zabbix
+    dest: /var/www/html/zabbix
+    state: link
+    mode: 0775
+    owner: nginx
+    group: wheel
+
+- name: chmod 775 /etc/zabbix/web
+  file:
+    path: /etc/zabbix/web
+    state: directory
+    recurse: yes
+    mode: 0775
+    owner: nginx
+    group: wheel
+
+- name: chown nginx:wheel /usr/share/zabbix
+  file:
+    path: /usr/share/zabbix
+    state: directory
+    recurse: yes
+    owner: nginx
+    group: wheel
+
+- name: service zabbix start
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - zabbix-server
+    - zabbix-agent

@@ -4,3 +4,4 @@ tmp: /tmp
 zabbix_web_root: zabbix
 
 db_root_user_password: root
+db_zabbix_user_password: zabbix
