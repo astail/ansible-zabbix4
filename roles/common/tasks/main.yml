@@ -40,28 +40,26 @@
 
 - name: yum group-install
   yum:
-    name: "{{ item }}"
-  with_items:
-    - "@Base"
-    - "@Development tools"
+    name:
+      - "@Base"
+      - "@Development tools"
 
 - name: install common service
   yum:
-    name: "{{ item }}"
-  with_items:
-    - git
-    - ntp
-    - net-tools
-    - wget
-    - vim
+    name:
+      - git
+      - ntp
+      - net-tools
+      - wget
+      - vim
+
 
 - name: install epel common service
   yum:
-    name: "{{ item }}"
+    name:
+      - htop
+      - jq
     enablerepo: epel
-  with_items:
-    - htop
-    - jq
 
 - name: epel repository disable
   replace:

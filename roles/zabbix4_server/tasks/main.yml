@@ -6,11 +6,10 @@
 
 - name: yum install server web agent
   yum:
-    name: "{{ item }}"
-  with_items:
-    - zabbix-server-mysql
-    - zabbix-web-mysql
-    - zabbix-agent
+    name:
+      - zabbix-server-mysql
+      - zabbix-web-mysql
+      - zabbix-agent
 
 - name: create zabbix databases
   mysql_db:

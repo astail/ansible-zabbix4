@@ -2,11 +2,10 @@
 
 - name: yum install mariadb
   yum:
-    name: "{{ item }}"
-  with_items:
-    - mariadb
-    - mariadb-devel
-    - mariadb-server
+    name:
+      - mariadb
+      - mariadb-devel
+      - mariadb-server
 
 - name: install MySQL-python
   yum:
