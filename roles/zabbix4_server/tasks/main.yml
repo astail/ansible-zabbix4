@@ -96,3 +96,29 @@
   with_items:
     - zabbix-server
     - zabbix-agent
+
+- name: font install
+  yum:
+    name: ipa-pgothic-fonts
+
+- name: ln -s /usr/share/fonts/ipa-pgothic/ipagp.ttf /usr/share/zabbix/fonts/ipagp.ttf
+  file:
+    src: /usr/share/fonts/ipa-pgothic/ipagp.ttf
+    dest: /usr/share/zabbix/fonts/ipagp.ttf
+    state: link
+    owner: nginx
+    group: wheel
+
+- name: edit ZBX_GRAPH_FONT_NAME /usr/share/zabbix/include/defines.inc.php
+  lineinfile:
+    regexp: "ZBX_GRAPH_FONT_NAME"
+    line: "define('ZBX_GRAPH_FONT_NAME', 'ipagp');"
+    state: present
+    dest:  /usr/share/zabbix/include/defines.inc.php
+
+- name: edit ZBX_FONT_NAME /usr/share/zabbix/include/defines.inc.php
+  lineinfile:
+    regexp: "ZBX_FONT_NAME"
+    line: "define('ZBX_FONT_NAME', 'graphfont');"
+    state: present
+    dest:  /usr/share/zabbix/include/defines.inc.php
